@@ -55,7 +55,8 @@ function makeMap() {
   );
 
   // TODO:
-  var fullURL = "https://gbfs.citibikenyc.com/gbfs/en/station_information.json";
+  var fullURL =
+    "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
   d3.json(fullURL).then(function (response) {
     // console.log(data);
@@ -64,18 +65,27 @@ function makeMap() {
     var markers = L.markerClusterGroup(); //this is already a master layer
     var heatArray = [];
 
-    var stations = response.data.stations;
+    var earthquakes = response.features;
 
-    stations.forEach(function (station) {
-      if (station.lat && station.lon) {
+    earthquakes.forEach(function (earthquake) {
+      if (
+        earthquake.geometry.coordinates[1] &&
+        earthquake.geometry.coordinates[0]
+      ) {
         //marker for cluster
-        let temp = L.marker([+station.lat, +station.lon]).bindPopup(
-          `<h3>${station.name}</h3><hr><h5>Capacity: ${station.capacity}</h5>`
+        let temp = L.marker([
+          +earthquake.geometry.coordinates[1],
+          +earthquake.geometry.coordinates[0],
+        ]).bindPopup(
+          `<h6>${earthquake.properties.place}</h6><hr><h6>Magnitude: ${earthquake.properties.mag}</h6>`
         );
         markers.addLayer(temp);
 
         //heatmap points
-        heatArray.push([+station.lat, +station.lon]);
+        heatArray.push([
+          +earthquake.geometry.coordinates[1],
+          +earthquake.geometry.coordinates[0],
+        ]);
       }
     });
 
@@ -102,7 +112,7 @@ function makeMap() {
     // Creating map object
     var myMap = L.map("map", {
       center: [40.73, -74.0059],
-      zoom: 11,
+      zoom: 2,
       layers: [darkmap, markers],
     });
 
