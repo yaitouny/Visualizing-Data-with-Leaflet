@@ -81,7 +81,7 @@ function makeMap() {
           +earthquake.geometry.coordinates[1],
           +earthquake.geometry.coordinates[0],
         ]).bindPopup(
-          `<h4>${earthquake.properties.place}</h4><hr><p>Magnitude: ${earthquake.properties.mag}</p>`
+          `<strong>${earthquake.properties.place}</strong><hr><p>Magnitude: ${earthquake.properties.mag}</p>`
         );
         markers.addLayer(temp);
 
@@ -98,14 +98,14 @@ function makeMap() {
           ],
           {
             fillOpacity: 0.5,
-            color: "red",
-            fillColor: circleColor(earthquake.properties.mag),
+            color: "black",
+            fillColor: colorInfo(earthquake.properties.mag),
             radius: markerSize(earthquake.properties.mag),
             stroke: true,
             weight: 1,
           }
         ).bindPopup(
-          `<h4>${earthquake.properties.place}</h4><hr><p>Magnitude: ${earthquake.properties.mag}</p>`
+          `<strong>${earthquake.properties.place}</strong><hr><p>Magnitude: ${earthquake.properties.mag}</p>`
         );
         circles.push(circle);
       }
@@ -115,7 +115,7 @@ function makeMap() {
       let plateLayer = L.geoJson(plates, {
         style: function (feature) {
           return {
-            color: "orange",
+            color: "pink",
             weight: 1.5,
           };
         },
@@ -156,27 +156,25 @@ function makeMap() {
       myMap.addLayer(markers);
       L.control.layers(baseMaps, overlayMaps).addTo(myMap);
 
-      // Create a legend
       var legend = L.control({ position: "bottomleft" });
-      legend.onAdd = function () {
+      legend.onAdd = function (map) {
         var div = L.DomUtil.create("div", "info legend");
+        (labels = ["<strong>Magnitude</strong>"]),
+          (categories = [0, 1, 2, 3, 5]);
 
-        //create HTML for legend (has to be i tags)
-        div.innerHTML += "<h4>Magnitudes</h4>";
-        div.innerHTML +=
-          '<i style="background: #FFC300"></i><span>0-1</span><br>';
-        div.innerHTML +=
-          '<i style="background: #FF5733"></i><span>1-2</span><br>';
-        div.innerHTML +=
-          '<i style="background: #C70039"></i><span>2-3</span><br>';
-        div.innerHTML +=
-          '<i style="background: #900C3F"></i><span>3-4</span><br>';
-        div.innerHTML +=
-          '<i style="background: #581845"></i><span>4-5</span><br>';
-        div.innerHTML += '<i style="background: #DAF7A6"></i><span>5+</span>';
-
+        for (var i = 0; i < categories.length; i++) {
+          div.innerHTML += labels.push(
+            '<i style="background: ' +
+              colorInfo(categories[i] + 1) +
+              '"></i> ' +
+              categories[i] +
+              (categories[i + 1] ? "&ndash;" + categories[i + 1] + "<br>" : "+")
+          );
+        }
+        div.innerHTML = labels.join("<br>");
         return div;
       };
+      // add legend to map
       legend.addTo(myMap);
     });
   });
@@ -189,17 +187,17 @@ function markerSize(magnitude) {
   return magnitude * 60000;
 }
 
-function circleColor(magnitude) {
+function colorInfo(magnitude) {
   switch (true) {
-    case magnitude >= 5:
+    case magnitude > 5:
       return "#581845";
-    case magnitude >= 4:
+    case magnitude > 4:
       return "#900C3F";
-    case magnitude >= 3:
+    case magnitude > 3:
       return "#C70039";
-    case magnitude >= 2:
+    case magnitude > 2:
       return "#FF5733";
-    case magnitude >= 1:
+    case magnitude > 1:
       return "#FFC300";
     default:
       return "#DAF7A6";
